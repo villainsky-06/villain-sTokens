@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGL Elite - Platform Premium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> <span id="notification-text">Operasi berhasil!</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-comment-alt"></i>
+                    <span>NGL Elite</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#"><i class="fas fa-home"></i> Beranda</a></li>
+                    <li><a href="#ip-section"><i class="fas fa-map-marker-alt"></i> Lacak IP</a></li>
+                    <li><a href="#ngl-section"><i class="fas fa-paper-plane"></i> Spam NGL</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> Kontak</a></li>
+                </ul>
+                <a href="#" class="btn btn-primary"><i class="fas fa-user"></i> Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Platform Premium dengan Fitur Canggih</h1>
+            <p>Lacak informasi IP secara lengkap dan gunakan fitur spam NGL untuk mengirim pesan secara massal. Dirancang untuk profesional.</p>
+            <a href="#ip-section" class="btn btn-primary"><i class="fas fa-map-marker-alt"></i> Lacak IP Sekarang</a>
+            <a href="#ngl-section" class="btn btn-danger"><i class="fas fa-paper-plane"></i> Spam NGL</a>
+        </div>
+    </section>
+
+    <!-- IP Info Section -->
+    <section class="features" id="ip-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Lacak Informasi IP Address</h2>
+                <p>Dapatkan informasi lengkap tentang IP address Anda dengan teknologi pelacakan canggih</p>
+            </div>
+            <div class="ip-info">
+                <h3>Informasi IP Address Anda</h3>
+                <div class="ip-details">
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-network-wired"></i> Alamat IP</div>
+                        <div class="value" id="ipAddress">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-globe"></i> Negara</div>
+                        <div class="value" id="country">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-map-marked"></i> Wilayah</div>
+                        <div class="value" id="region">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-city"></i> Kota</div>
+                        <div class="value" id="city">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-code"></i> Kode Pos</div>
+                        <div class="value" id="postal">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-map-pin"></i> Koordinat</div>
+                        <div class="value" id="location">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-building"></i> Penyedia Layanan</div>
+                        <div class="value" id="org">Mendeteksi...</div>
+                    </div>
+                    <div class="ip-detail">
+                        <div class="label"><i class="fas fa-clock"></i> Zona Waktu</div>
+                        <div class="value" id="timezone">Mendeteksi...</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" id="refreshIp"><i class="fas fa-sync-alt"></i> Refresh Data IP</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NGL Spam Section -->
+    <section class="ngl-section" id="ngl-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Spam NGL Generator</h2>
+                <p>Kirim pesan massal ke target NGL dengan mudah dan cepat</p>
+            </div>
+            <div class="ngl-box">
+                <h3>Kirim Pesan Massal</h3>
+                <form id="nglForm">
+                    <div class="form-group">
+                        <label for="targetUsername"><i class="fas fa-user"></i> Target Username NGL</label>
+                        <input type="text" class="form-control" id="targetUsername" placeholder="contoh: target_username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message"><i class="fas fa-comment"></i> Pesan yang Akan Dikirim</label>
+                        <textarea class="form-control" id="message" placeholder="Tulis pesan yang ingin dikirim secara massal..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="messageCount"><i class="fas fa-hashtag"></i> Jumlah Pesan (maks: 100)</label>
+                        <input type="number" class="form-control" id="messageCount" min="1" max="100" value="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="delay"><i class="fas fa-clock"></i> Delay Antar Pesan (ms, min: 100)</label>
+                        <input type="number" class="form-control" id="delay" min="100" max="5000" value="500" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger" style="width: 100%;">
+                        <i class="fas fa-paper-plane"></i> Mulai Mengirim Pesan Massal
+                    </button>
+                </form>
+                <div id="progressContainer" style="margin-top: 30px; display: none;">
+                    <h4>Progress Pengiriman:</h4>
+                    <div class="progress-bar">
+                        <div class="progress" id="sendProgress"></div>
+                    </div>
+                    <p style="margin-top: 10px; text-align: center;">
+                        <span id="progressText">Mengirim pesan 0/10</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>NGL Elite</h3>
+                    <p>Platform premium dengan fitur pelacakan IP dan spam NGL untuk kebutuhan profesional Anda.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Tautan Cepat</h3>
+                    <ul>
+                        <li><i class="fas fa-chevron-right"></i> <a href="#">Tentang Kami</a></li>
+                        <li><i class="fas fa-chevron-right"></i> <a href="#">Kebijakan Privasi</a></li>
+                        <li><i class="fas fa-chevron-right"></i> <a href="#">Syarat & Ketentuan</a></li>
+                        <li><i class="fas fa-chevron-right"></i> <a href="#">Bantuan & Dukungan</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Kontak</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@nglelite.com</li>
+                        <li><i class="fas fa-phone"></i> +62 21 1234 5678</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 NGL Elite. All rights reserved. | Designed with <i class="fas fa-heart" style="color: var(--secondary);"></i></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
