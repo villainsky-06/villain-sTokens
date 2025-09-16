@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Obsidian v12 (Edisi Definitif)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter and Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- External Libraries -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-glow: #3b82f6; /* Electric Blue */
+            --secondary-glow: #8b5cf6; /* Violet */
+            --background-dark: #0a0a0f;
+            --background-panel: #111118;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--background-dark); color: #e0e0e0; overflow: hidden; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        .main-container::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(var(--secondary-glow) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: pulseGrid 10s ease-in-out infinite; z-index: -1; opacity: 0.05;
+        }
+        @keyframes pulseGrid { 0%, 100% { transform: scale(1); opacity: 0.05; } 50% { transform: scale(1.05); opacity: 0.1; } }
+        
+        .glow-text { color: var(--primary-glow); text-shadow: 0 0 8px var(--primary-glow); }
+        .input-glow { background-color: rgba(0, 0, 0, 0.3); border: 1px solid #444; transition: all 0.3s ease; border-radius: 6px; }
+        .input-glow:focus { outline: none; border-color: var(--primary-glow); box-shadow: 0 0 10px var(--primary-glow); }
+        .btn { padding: 10px 15px; font-weight: 600; border-radius: 6px; transition: all 0.2s ease-in-out; border: 1px solid transparent; }
+        .btn-primary { background-color: var(--primary-glow); color: #fff; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+        .btn-primary:hover { background-color: #60a5fa; box-shadow: 0 0 20px rgba(96, 165, 250, 0.7); transform: translateY(-2px); }
+        .btn:disabled { background-color: #27272a; color: #52525b; border-color: #3f3f46; cursor: not-allowed; box-shadow: none; transform: none;}
+
+        .sidebar-nav a { border-left: 3px solid transparent; transition: all 0.2s ease; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center;}
+        .sidebar-nav a:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-nav a.active { background-color: rgba(59, 130, 246, 0.15); border-left-color: var(--primary-glow); color: var(--primary-glow); font-weight: 600; }
+        .sidebar-nav a i { width: 30px; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary-glow); border-radius: 4px; }
+        
+        .view { display: none; animation: fadeIn 0.5s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel { background-color: var(--background-panel); border: 1px solid #27272a; border-radius: 8px; padding: 1.5rem; }
+        
+        .toast { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 6px; color: white; font-weight: 600; z-index: 1000; transform: translateX(120%); animation: slideIn 0.5s forwards; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+        .toast.success { background-color: rgba(34, 197, 94, 0.8); box-shadow: 0 0 15px var(--success); }
+        .toast.error { background-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 15px var(--error); }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        @keyframes slideOut { to { transform: translateX(120%); } }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="main-container relative w-full max-w-7xl h-[90vh] bg-black bg-opacity-80 backdrop-blur-md border border-blue-500/30 rounded-lg shadow-2xl shadow-blue-500/20 flex overflow-hidden;">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="w-72 bg-black/30 p-4 border-r border-blue-500/30 flex flex-col sidebar-nav custom-scrollbar overflow-y-auto">
+            <div>
+                <h1 id="app-title" class="text-2xl font-bold glow-text mb-1">PROJECT OBSIDIAN</h1>
+                <p id="app-subtitle" class="text-xs text-gray-400">Definitive Edition v12</p>
+            </div>
+            <div class="mt-8 flex-grow">
+                <a id="nav-dashboard" class="active"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard</a>
+                <h3 class="text-xs text-gray-500 uppercase font-bold mt-6 mb-2 tracking-widest">Utiliti Pintar</h3>
+                <a id="nav-ai-chat"><i class="fas fa-robot fa-fw"></i> AI Chat</a>
+                <a id="nav-ai-image-generator"><i class="fas fa-palette fa-fw"></i> AI Image Generator</a>
+                <a id="nav-text-analyzer"><i class="fas fa-file-alt fa-fw"></i> Penganalisis Teks</a>
+                <a id="nav-source-code-analyzer"><i class="fas fa-code fa-fw"></i> Penganalisis Kod</a>
+                <a id="nav-kalkulator"><i class="fas fa-calculator fa-fw"></i> Kalkulator</a>
+                <h3 class="text-xs text-gray-500 uppercase font-bold mt-6 mb-2 tracking-widest">Utiliti Sekuriti</h3>
+                <a id="nav-secure-notes"><i class="fas fa-lock fa-fw"></i> Nota Sulit</a>
+                <a id="nav-password-generator"><i class="fas fa-key fa-fw"></i> Penjana Kata Laluan</a>
+                <a id="nav-hash-generator"><i class="fas fa-fingerprint fa-fw"></i> Penghasil Hash</a>
+                <a id="nav-crypto-tool"><i class="fas fa-shield-halved fa-fw"></i> CryptoTool</a>
+                <h3 class="text-xs text-gray-500 uppercase font-bold mt-6 mb-2 tracking-widest">Utiliti Jaringan</h3>
+                <a id="nav-network-status"><i class="fas fa-globe fa-fw"></i> Status Jaringan</a>
+                <a id="nav-ip-track"><i class="fas fa-crosshairs fa-fw"></i> Lacak IP</a>
+                <a id="nav-ip-check"><i class="fas fa-network-wired fa-fw"></i> Cek IP Saya</a>
+                <a id="nav-telegram-bot"><i class="fab fa-telegram fa-fw"></i> Telegram Bot</a>
+                <h3 class="text-xs text-gray-500 uppercase font-bold mt-6 mb-2 tracking-widest">Alat Multimedia</h3>
+                <a id="nav-qr-generator"><i class="fas fa-qrcode fa-fw"></i> QR Generator</a>
+                <a id="nav-camera-tool"><i class="fas fa-camera-retro fa-fw"></i> HD Camera Tool</a>
+                <a id="nav-img-upload"><i class="fas fa-image fa-fw"></i> Image Uploader</a>
+                <h3 class="text-xs text-gray-500 uppercase font-bold mt-6 mb-2 tracking-widest">Sistem</h3>
+                <a id="nav-konfigurasi"><i class="fas fa-cog fa-fw"></i> Konfigurasi</a>
+                <a id="nav-store"><i class="fas fa-store fa-fw"></i> Toko</a>
+                <a id="nav-spam-ngl"><i class="fas fa-bomb fa-fw"></i> NGL Sender</a>
+            </div>
+            <div id="app-credit" class="text-center text-xs text-gray-600 mt-auto">©®codescFrostWolf</div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 p-6 overflow-y-auto custom-scrollbar">
+            <!-- Views will be dynamically populated here by JavaScript -->
+        </main>
+    </div>
+
+    <div id="modal-container"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ===================================================================================
+        // KONFIGURASI API KEY (WAJIB DIISI)
+        // Ganti "" dengan API key Anda yang sebenarnya.
+        // ===================================================================================
+        const API_KEYS = {
+            GEMINI: "", // Untuk AI Chat & AI Image Gen
+            IMGBB: "",
+            EMAILJS_SERVICE_ID: "",
+            EMAILJS_TEMPLATE_ID: "",
+            EMAILJS_PUBLIC_KEY: ""
+        };
+        // ===================================================================================
+
+        const mainContent = document.getElementById('main-content');
+        const modalContainer = document.getElementById('modal-container');
+        
+        const viewTemplates = {
+            dashboard: `
+                <div id="dashboard-view" class="view">
+                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-3 flex justify-between items-center"><h2 class="text-3xl font-bold text-gray-200">System Dashboard</h2><div class="panel text-center font-mono"><div id="live-clock" class="text-2xl font-bold text-blue-400"></div><div id="live-date" class="text-xs text-gray-400"></div></div></div>
+                        <div class="panel lg:col-span-3"> <h3 class="font-bold text-gray-400 mb-2">Audio Spectrum</h3><canvas id="audio-visualizer" class="h-24 w-full"></canvas><button id="visualizer-start-btn" class="btn btn-primary mt-4 w-full">Aktifkan Visualizer Mikrofon</button></div>
+                        <div class="panel lg:col-span-3 flex items-center gap-6">
+                            <svg class="h-20 w-20 flex-shrink-0" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 15px var(--primary-glow));"><path fill="url(#robot-gradient-obsidian)" d="M12,2A2,2 0 0,1 14,4C14,4.54 13.78,5.04 13.42,5.42C15.54,6.03 17,7.82 17,10V11A1,1 0 0,1 16,12H8A1,1 0 0,1 7,11V10C7,7.82 8.46,6.03 10.58,5.42C10.22,5.04 10,4.54 10,4A2,2 0 0,1 12,2M4,13V15H6V18H18V15H20V13H4M8,14H16V16H8V14Z"/><defs><linearGradient id="robot-gradient-obsidian" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3b82f6;"/><stop offset="100%" style="stop-color:#8b5cf6;"/></linearGradient></defs></svg>
+                            <div><h3 class="text-xl font-bold glow-text">Welcome, Operator</h3><p class="text-gray-400 mt-2">Semua sistem beroperasi. Pilih alat dari menu untuk memulai.</p></div>
+                        </div>
+                    </div>
+                </div>`,
+            'ai-chat': `
+                <div id="ai-chat-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Gemini AI Chat ]</h2>
+                    <p class="text-sm text-yellow-400 mb-4 bg-yellow-900/50 p-3 rounded-md"><i class="fas fa-info-circle mr-2"></i>Ciri ini menggunakan API Key Google AI anda yang telah ditetapkan dalam kod.</p>
+                    <div class="panel flex flex-col h-[70vh]"><div id="chat-window" class="flex-grow flex flex-col gap-4 p-4 overflow-y-auto custom-scrollbar"><div class="chat-message ai" style="max-width: 80%; padding: 0.75rem 1rem; border-radius: 12px; line-height: 1.5; background-color: #27272a; color: #e0e0e0; align-self: flex-start; border-bottom-left-radius: 2px;">Helo! Saya Gemini. Apa yang boleh saya bantu?</div></div>
+                    <div class="mt-4 pt-4 border-t border-gray-800"><form id="ai-chat-form" class="flex gap-4"><input type="text" id="ai-chat-input" placeholder="Tanya sesuatu..." class="w-full p-2 input-glow font-mono" autocomplete="off"><button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button></form></div></div>
+                </div>`,
+            'ai-image-generator': `
+                 <div id="ai-image-generator-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ AI Image Generator ]</h2>
+                    <p class="text-sm text-yellow-400 mb-4 bg-yellow-900/50 p-3 rounded-md"><i class="fas fa-info-circle mr-2"></i>Ciri ini menggunakan API Key Google AI anda yang telah ditetapkan dalam kod.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="panel"><h3 class="font-bold text-lg text-gray-300 mb-4">Prompt Gambar</h3><textarea id="ai-image-prompt" rows="8" placeholder="Contoh: seekor kucing angkasawan comel di bulan, seni digital" class="w-full p-2 input-glow font-mono resize-none"></textarea><button id="generate-ai-image-btn" class="btn btn-primary mt-4 w-full"><span id="generate-ai-image-text">Hasilkan Imej</span><i id="generate-ai-image-spinner" class="fas fa-spinner fa-spin hidden ml-2"></i></button></div>
+                    <div class="panel text-center"><h3 class="font-bold text-lg text-gray-300 mb-4">Hasil Imej</h3><div id="ai-image-result-container" class="bg-black/30 rounded-md w-full aspect-square mx-auto flex items-center justify-center border border-dashed border-gray-600 relative"><span class="text-gray-500">Imej yang dihasilkan akan muncul di sini...</span></div></div></div>
+                </div>`,
+            'text-analyzer': `
+                <div id="text-analyzer-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Penganalisis Teks ]</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[80vh]"><div class="panel flex flex-col"><h3 class="font-bold text-lg text-gray-300 mb-4">Teks Input</h3><textarea id="text-analyzer-input" placeholder="Tampal atau taip teks anda di sini..." class="w-full flex-grow p-2 input-glow font-mono resize-none"></textarea></div>
+                    <div class="panel"><h3 class="font-bold text-lg text-gray-300 mb-4">Hasil Analisis</h3><div class="grid grid-cols-2 gap-4 font-mono text-lg">
+                        <div class="bg-black/30 p-4 rounded-md"><p class="text-sm text-gray-400">Perkataan</p><p id="word-count" class="text-2xl font-bold text-blue-400">0</p></div>
+                        <div class="bg-black/30 p-4 rounded-md"><p class="text-sm text-gray-400">Aksara</p><p id="char-count" class="text-2xl font-bold text-blue-400">0</p></div>
+                        <div class="bg-black/30 p-4 rounded-md"><p class="text-sm text-gray-400">Ayat</p><p id="sentence-count" class="text-2xl font-bold text-blue-400">0</p></div>
+                        <div class="bg-black/30 p-4 rounded-md"><p class="text-sm text-gray-400">Perenggan</p><p id="paragraph-count" class="text-2xl font-bold text-blue-400">0</p></div>
+                    </div></div></div>
+                </div>`,
+            'source-code-analyzer': `
+                <div id="source-code-analyzer-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Penganalisis Kod Sumber ]</h2>
+                    <div class="panel">
+                        <p class="text-gray-400 mb-4">Masukkan URL untuk mengambil dan memaparkan kod sumber HTML publiknya. Ini adalah alat pembelajaran, bukan alat peretasan.</p>
+                        <div class="flex gap-4 mb-4"><input type="text" id="url-to-analyze" placeholder="https://google.com" class="w-full p-2 input-glow font-mono"><button id="analyze-code-btn" class="btn btn-primary">Analisis</button></div>
+                        <h3 class="font-bold text-lg text-gray-300 mb-2">Kod Sumber (HTML)</h3>
+                        <pre class="w-full h-[55vh] p-2 input-glow font-mono text-sm overflow-auto custom-scrollbar bg-black/30"><code id="source-code-output">Hasil akan dipaparkan di sini...</code></pre>
+                    </div>
+                </div>`,
+            'kalkulator': `
+                <div id="kalkulator-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Kalkulator ]</h2>
+                    <div class="panel max-w-md mx-auto" style="--calculator-button-bg: #27272a; --calculator-operator-bg: #3f3f46; --calculator-equals-bg: var(--primary-glow);">
+                        <div class="calculator-display font-mono mb-6" style="background-color: rgba(0,0,0,0.3); padding: 1.5rem; text-align: right; border-radius: 8px; border: 1px solid #444; word-wrap: break-word; word-break: break-all;"><div data-previous-operand class="previous-operand" style="min-height: 1.5rem; font-size: 1rem; color: #888;"></div><div data-current-operand class="current-operand" style="min-height: 3rem; font-size: 2.5rem; color: white;">0</div></div>
+                        <div class="calculator-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <button data-all-clear class="operator col-span-2" style="grid-column: span 2; font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">AC</button> <button data-delete class="operator" style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">DEL</button> <button data-operator class="operator" style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">÷</button>
+                            <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">7</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">8</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">9</button> <button data-operator class="operator" style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">×</button>
+                            <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">4</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">5</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">6</button> <button data-operator class="operator" style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">-</button>
+                            <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">1</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">2</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">3</button> <button data-operator class="operator" style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-operator-bg); color: var(--secondary-glow);">+</button>
+                            <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">0</button> <button data-number style="font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--calculator-button-bg);">.</button> <button data-equals class="equals" style="grid-column: span 2; font-size: 1.5rem; padding: 1.25rem; border-radius: 8px; transition: all 0.2s ease; background-color: var(--primary-glow); color: #fff;">=</button>
+                        </div>
+                    </div>
+                </div>`,
+             'secure-notes': `
+                <div id="secure-notes-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Nota Sulit Terenkripsi ]</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[80vh]">
+                        <div class="panel flex flex-col"><h3 class="font-bold text-lg text-gray-300 mb-4">Senarai Nota</h3><div id="notes-list" class="flex-grow space-y-2 overflow-y-auto custom-scrollbar pr-2"></div></div>
+                        <div class="panel lg:col-span-2 flex flex-col">
+                            <div class="flex-grow flex flex-col">
+                                 <input type="text" id="note-title" placeholder="Judul Nota" class="w-full p-2 input-glow font-mono text-lg mb-4">
+                                <textarea id="note-content" placeholder="Tuliskan isi kandungan nota sulit anda di sini..." class="w-full flex-grow p-2 input-glow font-mono resize-none"></textarea>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-800">
+                                 <p class="text-xs text-yellow-400 mb-2"><i class="fas fa-key mr-1"></i> Kata laluan ini digunakan untuk enkripsi. Jika terlupa, nota tidak boleh diakses.</p>
+                                 <div class="flex flex-col sm:flex-row gap-4">
+                                    <input type="password" id="note-password" placeholder="Kata Laluan Enkripsi" class="w-full p-2 input-glow font-mono">
+                                    <button id="save-note-btn" class="btn btn-primary"><i class="fas fa-save mr-2"></i> Simpan</button>
+                                    <button id="delete-note-btn" class="btn bg-red-600/80 text-white hover:bg-red-500" disabled><i class="fas fa-trash mr-2"></i> Padam</button>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`,
+            'password-generator': `
+                <div id="password-generator-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Penjana Kata Laluan ]</h2>
+                    <div class="panel max-w-2xl mx-auto">
+                        <div class="flex gap-4 mb-4"><input type="text" id="password-output" readonly placeholder="Tekan 'Hasilkan' untuk memulakan..." class="w-full p-3 input-glow font-mono text-xl bg-black/30 text-blue-400"><button id="copy-password-btn" class="btn btn-primary text-xl"><i class="fas fa-copy"></i></button></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            <div><label class="font-mono">Panjang: <span id="password-length-label" class="text-blue-400 font-bold">16</span></label><input type="range" id="password-length" min="8" max="64" value="16" class="w-full"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="flex items-center"><input type="checkbox" id="include-uppercase" checked class="mr-2"> Huruf Besar</label><label class="flex items-center"><input type="checkbox" id="include-lowercase" checked class="mr-2"> Huruf Kecil</label>
+                                <label class="flex items-center"><input type="checkbox" id="include-numbers" checked class="mr-2"> Nombor</label><label class="flex items-center"><input type="checkbox" id="include-symbols" checked class="mr-2"> Simbol</label>
+                            </div>
+                        </div>
+                        <button id="generate-password-btn" class="btn btn-primary w-full mt-6 text-lg">Hasilkan Kata Laluan Baru</button>
+                    </div>
+                </div>`,
+            'hash-generator': `
+                <div id="hash-generator-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Penghasil Hash ]</h2>
+                    <div class="panel">
+                        <h3 class="font-bold text-lg text-gray-300 mb-4">Teks Input</h3>
+                        <textarea id="hash-input" rows="8" placeholder="Masukkan data untuk di-hash..." class="w-full p-2 input-glow font-mono resize-none"></textarea>
+                        <div class="mt-4 flex flex-col sm:flex-row gap-4 items-center">
+                            <select id="hash-algorithm" class="p-2 input-glow font-mono bg-background-panel w-full sm:w-auto"><option>SHA-256</option><option>SHA-1</option><option>SHA-512</option></select>
+                            <button id="generate-hash-btn" class="btn btn-primary w-full sm:w-auto">Hasilkan Hash</button>
+                        </div>
+                        <div class="mt-6"><h3 class="font-bold text-lg text-gray-300 mb-4">Output Hash</h3><div id="hash-output" class="p-4 input-glow font-mono text-green-400 bg-black/30 break-all">...</div></div>
+                    </div>
+                </div>`,
+            'crypto-tool': `
+                <div id="crypto-tool-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ CryptoTool ]</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="panel"><h3 class="font-bold text-lg text-gray-300 mb-4">Input</h3><textarea id="crypto-input" rows="8" placeholder="Masukkan teks di sini..." class="w-full p-2 input-glow font-mono resize-none"></textarea><div class="mt-4 flex flex-col sm:flex-row gap-4 sm:items-center"><div class="flex-grow space-x-4"><label><input type="radio" name="crypto-mode" value="encrypt" checked> Enkripsi</label><label><input type="radio" name="crypto-mode" value="decrypt"> Dekripsi</label></div><button id="crypto-process-btn" class="btn btn-primary w-full sm:w-auto">PROSES</button></div></div>
+                        <div class="panel"><h3 class="font-bold text-lg text-gray-300 mb-4">Output</h3><textarea id="crypto-output" rows="8" placeholder="Hasil akan muncul di sini..." readonly class="w-full p-2 input-glow font-mono resize-none bg-black/20"></textarea><div class="mt-4 flex gap-4"><label><input type="radio" name="crypto-method" value="base64" checked> Base64</label><label><input type="radio" name="crypto-method" value="rot13"> ROT13</label></div></div>
+                    </div>
+                </div>`,
+            'network-status': `
+                <div id="network-status-view" class="view">
+                     <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Pemeriksa Status Jaringan ]</h2>
+                     <div class="panel max-w-2xl mx-auto"><p class="text-gray-400 mb-4">Masukkan URL untuk memeriksa sama ada laman web tersebut dalam talian atau luar talian.</p><div class="flex gap-4"><input type="text" id="url-to-check" placeholder="https://google.com" class="w-full p-2 input-glow font-mono"><button id="check-status-btn" class="btn btn-primary">Periksa</button></div><div id="network-status-result" class="mt-6 p-4 bg-black/30 rounded-md font-mono text-lg text-center h-24 flex items-center justify-center">Menunggu...</div></div>
+                </div>`,
+            'ip-track': `
+                <div id="ip-track-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ IP Address Lookup ]</h2>
+                    <div class="panel"><div class="flex flex-col sm:flex-row gap-4 mb-6"><input type="text" id="ip-to-track" placeholder="Masukkan IP Address..." class="w-full p-2 input-glow font-mono"><button id="track-ip-btn" class="btn btn-primary">Lacak</button></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div id="track-ip-result" class="p-4 bg-black/30 rounded-md font-mono">Menunggu input...</div><div id="map" class="h-64 lg:h-auto rounded-md bg-black/30 border border-gray-700"></div></div></div>
+                </div>`,
+            'ip-check': `
+                <div id="ip-check-view" class="view">
+                     <div class="panel max-w-lg mx-auto"><h2 class="text-2xl font-bold mb-4">[ My IP Information ]</h2><button id="check-ip-btn" class="btn btn-primary">Tampilkan IP Saya</button><div id="my-ip-result" class="mt-6 p-4 bg-black/30 rounded-md font-mono text-lg hidden"></div></div>
+                </div>`,
+            'telegram-bot': `
+                <div id="telegram-bot-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Telegram Messenger ]</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="panel"><h3 class="font-bold text-lg text-blue-400 mb-2">Konfigurasi Bot</h3><p class="text-sm text-gray-400 mb-4">Anda memerlukan Token Bot dan Chat ID tujuan.</p><div class="space-y-4"><div><label class="font-mono text-sm text-gray-400">Telegram Bot Token</label><input type="password" id="telegram-bot-token" placeholder="Token dari @BotFather" class="w-full mt-1 p-2 input-glow font-mono"></div><div><label class="font-mono text-sm text-gray-400">Chat ID</label><input type="text" id="telegram-chat-id" placeholder="ID User, Grup, atau Channel" class="w-full mt-1 p-2 input-glow font-mono"></div></div><div class="mt-6 text-xs text-gray-500"><p><b class="text-gray-300">Cara mendapatkan:</b></p><ul class="list-disc list-inside mt-1"><li><b>Bot Token:</b> Kirim pesan \`/newbot\` ke <a href="https://t.me/BotFather" target="_blank" class="underline">@BotFather</a> di Telegram.</li><li><b>Chat ID:</b> Kirim pesan ke bot <a href="https://t.me/userinfobot" target="_blank" class="underline">@userinfobot</a> untuk mendapatkan ID Anda.</li></ul></div></div>
+                         <div class="panel flex flex-col"><h3 class="font-bold text-lg text-gray-300 mb-4">Pesan</h3><div class="flex-grow flex flex-col"><textarea id="telegram-message" rows="8" placeholder="Tulis pesan Anda di sini... Mendukung tag HTML dasar seperti <b>, <i>, <code>." class="w-full p-2 input-glow font-mono resize-none flex-grow"></textarea><button id="send-telegram-btn" class="btn btn-primary mt-4 w-full"><span id="send-telegram-text">Kirim Pesan</span><i id="send-telegram-spinner" class="fas fa-spinner fa-spin hidden ml-2"></i></button></div></div>
+                    </div>
+                </div>`,
+            'qr-generator': `
+                <div id="qr-generator-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ QR Code Generator ]</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="panel"><h3 class="font-bold text-lg text-gray-300 mb-4">Data Input</h3><p class="text-sm text-gray-400 mb-4">Masukkan teks, URL, atau data apa pun untuk diubah menjadi Kode QR.</p><textarea id="qr-input" rows="8" placeholder="https://google.com" class="w-full p-2 input-glow font-mono resize-none"></textarea><button id="generate-qr-btn" class="btn btn-primary mt-4 w-full">Hasilkan Kode QR</button></div>
+                        <div class="panel text-center"><h3 class="font-bold text-lg text-gray-300 mb-4">Hasil</h3><div id="qrcode-container" class="p-4 bg-white rounded-md w-64 h-64 mx-auto flex items-center justify-center"><span class="text-gray-500">Menunggu input...</span></div><a id="download-qr-link" class="btn btn-primary mt-4 hidden"><i class="fas fa-download mr-2"></i> Muat Turun</a></div>
+                    </div>
+                </div>`,
+            'camera-tool': `
+                <div id="camera-tool-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ HD Camera Tool ]</h2>
+                    <div class="panel">
+                        <div class="flex flex-wrap gap-4 mb-4"><button id="start-camera-btn" class="btn btn-primary"><i class="fas fa-video mr-2"></i> Mulai Kamera</button><button id="capture-btn" class="btn bg-violet-600/80 hover:bg-violet-500 text-white" disabled><i class="fas fa-camera mr-2"></i> Tangkap</button><button id="switch-camera-btn" class="btn bg-gray-600/80 hover:bg-gray-500 text-white" disabled><i class="fas fa-sync-alt mr-2"></i> Tukar Kamera</button></div>
+                        <p class="text-xs text-yellow-400 mb-4"><i class="fas fa-info-circle mr-1"></i> Browser akan meminta izin untuk mengakses kamera Anda.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-black rounded-md overflow-hidden border border-gray-700 aspect-video"><video id="camera-feed" playsinline autoplay class="w-full h-full object-cover"></video></div><div id="capture-result-container" class="flex flex-col items-center justify-center bg-black/30 rounded-md border border-dashed border-gray-600 aspect-video p-4"><span class="text-gray-500">Hasil tangkapan akan muncul di sini</span></div></div>
+                        <canvas id="capture-canvas" class="hidden"></canvas>
+                    </div>
+                </div>`,
+            'img-upload': `
+                <div id="img-upload-view" class="view">
+                    <div class="panel max-w-2xl mx-auto"><h2 class="text-2xl font-bold mb-4">[ Image to URL Converter ]</h2><p class="text-sm text-yellow-400 mb-4 bg-yellow-900/50 p-3 rounded-md"><i class="fas fa-info-circle mr-2"></i> Ciri ini menggunakan API Key ImgBB anda yang telah ditetapkan dalam kod.</p>
+                    <div class="mt-4"><label class="font-mono text-sm text-gray-400">Pilih Gambar</label><input type="file" id="image-file" accept="image/*" class="w-full mt-1 p-2 rounded-md bg-gray-800/50 border border-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-400 cursor-pointer"></div>
+                    <button id="upload-img-btn" class="btn btn-primary w-full mt-6">Upload dan Dapatkan URL</button><div id="img-upload-result" class="mt-6 p-4 bg-black/30 rounded-md font-mono hidden"></div></div>
+                </div>`,
+            'konfigurasi': `
+                <div id="konfigurasi-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-6">[ Konfigurasi Sistem ]</h2>
+                    <div class="panel max-w-2xl mx-auto space-y-4">
+                        <div><label class="font-mono text-sm text-gray-400">Nama Aplikasi / Logo</label><input type="text" id="setting-app-title" class="w-full mt-1 p-2 input-glow font-mono"></div>
+                        <div><label class="font-mono text-sm text-gray-400">Subjudul Aplikasi</label><input type="text" id="setting-app-subtitle" class="w-full mt-1 p-2 input-glow font-mono"></div>
+                        <div><label class="font-mono text-sm text-gray-400">Kredit Pencipta</label><input type="text" id="setting-app-credit" class="w-full mt-1 p-2 input-glow font-mono"></div>
+                        <button id="save-settings-btn" class="btn btn-primary w-full mt-4">Simpan Konfigurasi</button>
+                    </div>
+                </div>`,
+            'store': `
+                <div id="store-view" class="view">
+                    <h2 class="text-3xl font-bold text-gray-200 mb-2">Toko Produk Digital</h2><p class="text-gray-400 mb-6">Pesan produk melalui WhatsApp Admin dengan satu klik.</p>
+                    <div id="product-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                </div>`,
+            'spam-ngl': `
+                <div id="spam-ngl-view" class="view">
+                    <h2 class="text-2xl font-bold mb-4">[ NGL Sender Module ]</h2><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="panel space-y-4"><div><label for="nglLink" class="font-mono text-sm text-gray-400">TARGET URL</label><input type="url" id="nglLink" placeholder="https://ngl.link/username" class="w-full mt-1 p-2 input-glow font-mono"></div><div><label for="message" class="font-mono text-sm text-gray-400">MESSAGE PAYLOAD</label><textarea id="message" rows="5" placeholder="Enter message..." class="w-full mt-1 p-2 input-glow font-mono resize-none"></textarea></div><div><label for="delay" class="font-mono text-sm text-gray-400">DELAY (ms)</label><input type="number" id="delay" value="1000" min="100" class="w-full mt-1 p-2 input-glow font-mono"></div><div class="flex gap-4 pt-2"><button id="startBtn" class="btn btn-primary w-full"><i class="fas fa-play mr-2"></i>INITIATE</button><button id="stopBtn" disabled class="btn bg-red-600/80 hover:bg-red-500 text-white w-full"><i class="fas fa-stop mr-2"></i>TERMINATE</button></div></div><div class="panel h-96 flex flex-col"><div class="font-mono text-xs text-gray-500 pb-2 mb-2 border-b border-gray-800">LIVE LOG</div><div id="results-ngl" class="flex-grow font-mono text-sm overflow-y-auto custom-scrollbar"></div></div></div>
+                </div>`
+        };
+        
+        // --- CORE LOGIC ---
+        function initCore() {
+            mainContent.innerHTML = Object.values(viewTemplates).join('');
+            
+            function showToast(message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => { toast.style.animation = 'slideOut 0.5s forwards'; setTimeout(() => toast.remove(), 500); }, 3000); }
+            const views = document.querySelectorAll('.view');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            function showView(viewId) { views.forEach(v => v.style.display = 'none'); navLinks.forEach(l => l.classList.remove('active')); const activeView = document.getElementById(viewId); const activeLink = document.getElementById(`nav-${viewId.replace('-view', '')}`); if (activeView) activeView.style.display = 'block'; if (activeLink) activeLink.classList.add('active'); }
+            navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const viewId = `${link.id.replace('nav-', '')}-view`; if (!document.getElementById(viewId)) return; showView(viewId); }); });
+            window.showToast = showToast; 
+            return { showView };
+        }
+
+        // --- ALL MODULES INITIALIZATION ---
+        function initDashboard() {
+            function initClock() { const clockEl = document.getElementById('live-clock'); const dateEl = document.getElementById('live-date'); if (!clockEl || !dateEl) return; function updateTime() { const now = new Date(); clockEl.textContent = now.toLocaleTimeString('en-GB'); dateEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); } setInterval(updateTime, 1000); updateTime(); }
+            function initVisualizer() { const startBtn = document.getElementById('visualizer-start-btn'); const canvas = document.getElementById('audio-visualizer'); if (!startBtn || !canvas) return; const ctx = canvas.getContext('2d'); let audioContext, analyser; startBtn.addEventListener('click', async () => { if (audioContext) return; try { const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); audioContext = new (window.AudioContext || window.webkitAudioContext)(); analyser = audioContext.createAnalyser(); analyser.fftSize = 256; audioContext.createMediaStreamSource(stream).connect(analyser); startBtn.textContent = 'Visualizer Aktif'; startBtn.disabled = true; visualize(); } catch (err) { showToast('Akses mikrofon ditolak.', 'error'); } }); function visualize() { const bufferLength = analyser.frequencyBinCount; const dataArray = new Uint8Array(bufferLength); canvas.width = canvas.parentElement.clientWidth; canvas.height = 100; const barWidth = (canvas.width / bufferLength); const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height); gradient.addColorStop(0, 'var(--primary-glow)'); gradient.addColorStop(1, 'var(--secondary-glow)'); function renderFrame() { requestAnimationFrame(renderFrame); let x = 0; analyser.getByteFrequencyData(dataArray); ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < bufferLength; i++) { const barHeight = dataArray[i]/2.5; ctx.fillStyle = gradient; ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight); x += barWidth + 1; } } renderFrame(); } }
+            initClock(); initVisualizer();
+        }
+        function initAiChat() { const form = document.getElementById('ai-chat-form'), input = document.getElementById('ai-chat-input'), windowEl = document.getElementById('chat-window'); if(!form) return; function addMsg(msg, sender) { const el = document.createElement('div'); el.className = `chat-message ${sender}`; el.style.cssText = `max-width: 80%; padding: 0.75rem 1rem; border-radius: 12px; line-height: 1.5; align-self: ${sender==='user'?'flex-end':'flex-start'}; border-bottom-${sender==='user'?'right':'left'}-radius: 2px; background-color: ${sender==='user'?'var(--primary-glow)':'#27272a'}; color: ${sender==='user'?'#fff':'#e0e0e0'};`; el.textContent = msg; windowEl.appendChild(el); windowEl.scrollTop = windowEl.scrollHeight; } form.addEventListener('submit', async e => { e.preventDefault(); const userMsg = input.value.trim(); if (!API_KEYS.GEMINI) { showToast('Sila tetapkan API Key dalam kod.', 'error'); return; } if (!userMsg) return; addMsg(userMsg, 'user'); input.value = ''; addMsg('AI sedang berfikir...', 'thinking'); try { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEYS.GEMINI}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userMsg }] }] }) }); document.querySelector('.chat-message.thinking')?.remove(); if (!res.ok) { const err = await res.json(); throw new Error(err.error.message); } const result = await res.json(); const aiRes = result.candidates[0]?.content?.parts[0]?.text; if (aiRes) addMsg(aiRes, 'ai'); else throw new Error("Tiada respons."); } catch (error) { showToast(`Ralat AI: ${error.message}`, 'error'); document.querySelector('.chat-message.thinking')?.remove(); } }); }
+        function initAiImageGenerator() { const genBtn = document.getElementById('generate-ai-image-btn'); if (!genBtn) return; genBtn.addEventListener('click', async () => { const userPrompt = document.getElementById('ai-image-prompt').value.trim(); const resultContainer = document.getElementById('ai-image-result-container'); const btnText = document.getElementById('generate-ai-image-text'); const btnSpinner = document.getElementById('generate-ai-image-spinner'); if (!API_KEYS.GEMINI) { showToast('Sila tetapkan API Key dalam kod.', 'error'); return; } if (!userPrompt) { showToast('Sila masukkan prompt gambar.', 'error'); return; } genBtn.disabled = true; btnText.textContent = 'Menghasilkan...'; btnSpinner.classList.remove('hidden'); resultContainer.innerHTML = '<div class="flex flex-col items-center text-gray-500"><i class="fas fa-spinner fa-spin fa-2x mb-4"></i><p>AI sedang melukis...</p></div>'; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${API_KEYS.GEMINI}`; try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ instances: [{ prompt: userPrompt }], parameters: { "sampleCount": 1 } }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error?.message || `HTTP Error: ${response.status}`); } const result = await response.json(); if (result.predictions && result.predictions[0]?.bytesBase64Encoded) { const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`; resultContainer.innerHTML = `<img src="${imageUrl}" class="max-h-full max-w-full object-contain rounded-md" alt="Generated by AI"><a href="${imageUrl}" download="ai-image.png" class="btn btn-primary absolute bottom-4">Muat Turun</a>`; } else { throw new Error('Tiada imej dikembalikan.'); } } catch (error) { resultContainer.innerHTML = `<span class="text-red-400 p-4 text-center">Ralat: ${error.message}</span>`; showToast(`Gagal: ${error.message}`, 'error'); } finally { genBtn.disabled = false; btnText.textContent = 'Hasilkan Imej'; btnSpinner.classList.add('hidden'); } }); }
+        function initTextAnalyzer() { const input = document.getElementById('text-analyzer-input'); if(!input) return; input.addEventListener('input', () => { const text = input.value; document.getElementById('word-count').textContent = (text.trim().split(/\s+/).filter(Boolean)).length; document.getElementById('char-count').textContent = text.length; document.getElementById('sentence-count').textContent = (text.split(/[.!?]+/).filter(Boolean)).length; document.getElementById('paragraph-count').textContent = (text.split(/\n+/).filter(Boolean)).length; }); }
+        function initSourceCodeAnalyzer() { const analyzeBtn = document.getElementById('analyze-code-btn'); if(!analyzeBtn) return; analyzeBtn.addEventListener('click', async () => { let url = document.getElementById('url-to-analyze').value.trim(); const output = document.getElementById('source-code-output'); if(!url) { showToast('Sila masukkan URL.', 'error'); return; } if(!url.startsWith('http')) url = `https://${url}`; output.textContent = 'Mengambil kod sumber...'; try { const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`); if(!response.ok) throw new Error(`HTTP Error: ${response.status}`); const text = await response.text(); output.textContent = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); } catch(error) { output.textContent = `Gagal mengambil kod: ${error.message}`; showToast(`Ralat: ${error.message}`, 'error'); } }); }
+        function initKalkulator() { const prevOpEl = document.querySelector('[data-previous-operand]'); if (!prevOpEl) return; class Calculator { constructor(prev, curr) { this.prevEl = prev; this.currEl = curr; this.clear(); } clear() { this.curr = '0'; this.prev = ''; this.op = undefined; this.update(); } delete() { if(this.curr === '0') return; this.curr = this.curr.slice(0, -1) || '0'; this.update(); } append(num) { if (num === '.' && this.curr.includes('.')) return; this.curr = (this.curr === '0' && num !== '.') ? num : this.curr + num; this.update(); } chooseOp(op) { if (this.curr === '' && this.prev !== '') { this.op = op; this.update(); return; } if (this.prev !== '') this.compute(); this.op = op; this.prev = this.curr; this.curr = ''; this.update(); } compute() { let comp; const p = parseFloat(this.prev); const c = parseFloat(this.curr); if(isNaN(p) || isNaN(c)) return; switch (this.op) { case '+': comp=p+c; break; case '-': comp=p-c; break; case '×': comp=p*c; break; case '÷': comp=p/c; break; default: return; } this.curr=comp.toString(); this.op=undefined; this.prev=''; this.update(); } update() { this.currEl.innerText = this.curr; this.prevEl.innerText = this.op ? `${this.prev} ${this.op}` : ''; } } const calc = new Calculator(prevOpEl, document.querySelector('[data-current-operand]')); document.querySelectorAll('[data-number]').forEach(b => b.addEventListener('click', () => calc.append(b.innerText))); document.querySelectorAll('[data-operator]').forEach(b => b.addEventListener('click', () => calc.chooseOp(b.innerText))); document.querySelector('[data-equals]').addEventListener('click', () => calc.compute()); document.querySelector('[data-all-clear]').addEventListener('click', () => calc.clear()); document.querySelector('[data-delete]').addEventListener('click', () => calc.delete()); }
+        function initSecureNotes() { const listEl = document.getElementById('notes-list'); if(!listEl) return; const titleEl = document.getElementById('note-title'), contentEl = document.getElementById('note-content'), passEl = document.getElementById('note-password'), saveBtn = document.getElementById('save-note-btn'), delBtn = document.getElementById('delete-note-btn'); let currentId = null; async function getKey(p, s) { const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(p), {name:'PBKDF2'}, false, ['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2', salt:s, iterations:100000, hash:'SHA-256'}, k, {name:'AES-GCM', length:256}, true, ['encrypt','decrypt']); } async function encrypt(t, p) { const s=crypto.getRandomValues(new Uint8Array(16)), i=crypto.getRandomValues(new Uint8Array(12)), k=await getKey(p,s), e=await crypto.subtle.encrypt({name:'AES-GCM',iv:i}, k, new TextEncoder().encode(t)), r=new Uint8Array(s.length+i.length+e.byteLength); r.set(s); r.set(i,s.length); r.set(new Uint8Array(e),s.length+i.length); return btoa(String.fromCharCode.apply(null,r)); } async function decrypt(d, p) { const D=new Uint8Array(atob(d).split('').map(c=>c.charCodeAt(0))), s=D.slice(0,16), i=D.slice(16,28), c=D.slice(28), k=await getKey(p,s); return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:i},k,c));} function getNotes(){return JSON.parse(localStorage.getItem('obsidian_notes')||'[]')} function saveNotes(n){localStorage.setItem('obsidian_notes', JSON.stringify(n))} function render(){const n=getNotes(); listEl.innerHTML = n.length ? '' : '<p class="text-sm text-gray-500">Tiada nota.</p>'; n.forEach(note => {const el=document.createElement('div'); el.className=`note-item p-3 rounded-md border border-transparent hover:bg-blue-500/10 cursor-pointer ${note.id===currentId?'bg-blue-500/20':''}`; el.textContent=note.title; el.dataset.id=note.id; el.onclick=()=>load(note.id); listEl.appendChild(el);});} function clear(){currentId=null; titleEl.value=''; contentEl.value=''; delBtn.disabled=true; render();} async function load(id){const p=passEl.value; if(!p){showToast('Sila masukkan kata laluan.','error'); return;} const note=getNotes().find(n=>n.id===id); if(!note)return; try{contentEl.value=await decrypt(note.content, p); currentId=id; titleEl.value=note.title; delBtn.disabled=false; render(); showToast('Nota dibuka.');}catch(e){showToast('Kata laluan salah.','error');}} saveBtn.onclick=async()=>{const t=titleEl.value.trim(), c=contentEl.value.trim(), p=passEl.value; if(!t||!c||!p){showToast('Semua medan wajib diisi.','error');return;}const ec=await encrypt(c,p);let n=getNotes();if(currentId){const idx=n.findIndex(i=>i.id===currentId);if(idx>-1){n[idx].title=t; n[idx].content=ec;}}else{const newNote={id:Date.now(),title:t,content:ec}; n.push(newNote); currentId=newNote.id;} saveNotes(n); render(); showToast('Nota disimpan!');}; delBtn.onclick=()=>{if(!currentId)return; saveNotes(getNotes().filter(n=>n.id!==currentId)); clear(); showToast('Nota dipadam.');}; render(); }
+        function initPasswordGenerator() { const passOut = document.getElementById('password-output'), passLen = document.getElementById('password-length'), passLenLabel = document.getElementById('password-length-label'), includeUp = document.getElementById('include-uppercase'), includeLow = document.getElementById('include-lowercase'), includeNum = document.getElementById('include-numbers'), includeSym = document.getElementById('include-symbols'), genBtn = document.getElementById('generate-password-btn'), copyBtn = document.getElementById('copy-password-btn'); if(!passOut) return; const sets = { up: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', low: 'abcdefghijklmnopqrstuvwxyz', num: '0123456789', sym: '!@#$%^&*()_+-=[]{}|;:,.<>?' }; function generate() { const len = passLen.value; let pool = (includeUp.checked ? sets.up : '') + (includeLow.checked ? sets.low : '') + (includeNum.checked ? sets.num : '') + (includeSym.checked ? sets.sym : ''); if (pool === '') { passOut.value = 'Pilih sekurang-kurangnya satu set'; return; } let pass = ''; for (let i = 0; i < len; i++) { pass += pool[Math.floor(Math.random() * pool.length)]; } passOut.value = pass; } passLen.addEventListener('input', e => passLenLabel.textContent = e.target.value); genBtn.addEventListener('click', generate); copyBtn.addEventListener('click', () => { if (passOut.value) { navigator.clipboard.writeText(passOut.value); showToast('Kata laluan disalin!'); } }); generate(); }
+        function initHashGenerator() { const genBtn = document.getElementById('generate-hash-btn'); if(!genBtn) return; genBtn.addEventListener('click', async () => { const text = document.getElementById('hash-input').value, algo = document.getElementById('hash-algorithm').value, output = document.getElementById('hash-output'); if (!text) { output.textContent = 'Sila masukkan teks.'; return; } const data = new TextEncoder().encode(text); const hash = await crypto.subtle.digest(algo, data); output.textContent = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join(''); }); }
+        function initCryptoTool() { const procBtn = document.getElementById('crypto-process-btn'); if(!procBtn) return; procBtn.addEventListener('click', () => { const input = document.getElementById('crypto-input').value, output = document.getElementById('crypto-output'), mode = document.querySelector('input[name="crypto-mode"]:checked').value, method = document.querySelector('input[name="crypto-method"]:checked').value; try { if (method === 'base64') output.value = (mode === 'encrypt') ? btoa(unescape(encodeURIComponent(input))) : decodeURIComponent(escape(atob(input))); else output.value = input.replace(/[a-zA-Z]/g, c=>String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)); } catch(e) { output.value = 'Ralat: Input tidak sah.'; } }); }
+        function initNetworkStatus() { const checkBtn = document.getElementById('check-status-btn'); if(!checkBtn) return; checkBtn.addEventListener('click', async () => { let url = document.getElementById('url-to-check').value.trim(); if (!url) { showToast('Sila masukkan URL.', 'error'); return; } if (!url.startsWith('http')) url = `https://${url}`; const resEl = document.getElementById('network-status-result'); resEl.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Memeriksa...`; try { await fetch(url, { method: 'HEAD', mode: 'no-cors' }); resEl.innerHTML = `<span class="text-green-400 font-bold">DALAM TALIAN</span>`; } catch (error) { resEl.innerHTML = `<span class="text-red-400 font-bold">LUAR TALIAN / Ralat</span>`; } }); }
+        function initIpTrack() { let map; const trackBtn = document.getElementById('track-ip-btn'); if(!trackBtn) return; trackBtn.addEventListener('click', async () => { const ip = document.getElementById('ip-to-track').value.trim(); const resultDiv = document.getElementById('track-ip-result'); if (!ip) { resultDiv.innerHTML = `<span class="text-red-400">Sila masukkan alamat IP.</span>`; return; } resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Melacak ${ip}...`; try { const data = await (await fetch(`https://ipapi.co/${ip}/json/`)).json(); if (data.error) throw new Error(data.reason); resultDiv.innerHTML = `<div class="grid grid-cols-2 gap-x-6 gap-y-2"><span>IP:</span> <span class="text-blue-400">${data.ip}</span><span>Kota:</span> <span class="text-blue-400">${data.city||'N/A'}</span><span>Wilayah:</span> <span class="text-blue-400">${data.region||'N/A'}</span><span>Negara:</span> <span class="text-blue-400">${data.country_name||'N/A'}</span><span>Operator/ISP:</span> <span class="text-blue-400">${data.org||'N/A'}</span></div>`; const lat = data.latitude, lon = data.longitude; if (lat && lon) { if (!map) { map = L.map('map').setView([lat, lon], 10); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(map); } else { map.setView([lat, lon], 10); } L.marker([lat, lon]).addTo(map).bindPopup(`<b>${data.city || data.ip}</b>`).openPopup(); } } catch (error) { resultDiv.innerHTML = `<span class="text-red-400">Gagal melacak IP: ${error.message}</span>`; } }); }
+        function initIpCheck() { const checkBtn = document.getElementById('check-ip-btn'); if(!checkBtn) return; checkBtn.addEventListener('click', async () => { const resultDiv = document.getElementById('my-ip-result'); resultDiv.classList.remove('hidden'); resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Mencari IP Anda...`; try { const data = await (await fetch('https://api.ipify.org?format=json')).json(); resultDiv.innerHTML = `Alamat IP Anda: <span class="text-green-400">${data.ip}</span>`; } catch (error) { resultDiv.innerHTML = `<span class="text-red-400">Gagal mendapatkan IP.</span>`; } }); }
+        function initTelegramBot() { const sendBtn = document.getElementById('send-telegram-btn'); if(!sendBtn) return; sendBtn.addEventListener('click', async () => { const token = document.getElementById('telegram-bot-token').value.trim(), chatID = document.getElementById('telegram-chat-id').value.trim(), msg = document.getElementById('telegram-message').value.trim(); if(!token || !chatID || !msg) { showToast('Sila isi semua medan.', 'error'); return; } const btnText = document.getElementById('send-telegram-text'), btnSpinner = document.getElementById('send-telegram-spinner'); sendBtn.disabled = true; btnText.textContent = 'Mengirim...'; btnSpinner.classList.remove('hidden'); try { const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatID, text: msg, parse_mode: 'HTML' }) }); const data = await res.json(); if (data.ok) { showToast('Pesan berhasil dikirim!'); document.getElementById('telegram-message').value = ''; } else { throw new Error(data.description); } } catch (error) { showToast(`Gagal mengirim: ${error.message}`, 'error'); } finally { sendBtn.disabled = false; btnText.textContent = 'Kirim Pesan'; btnSpinner.classList.add('hidden'); } }); }
+        function initQrGenerator() { const genBtn = document.getElementById('generate-qr-btn'), input = document.getElementById('qr-input'), container = document.getElementById('qrcode-container'), link = document.getElementById('download-qr-link'); if(!genBtn) return; let qrcode = null; genBtn.addEventListener('click', () => { const data = input.value.trim(); if (!data) { showToast('Sila masukkan data.', 'error'); return; } container.innerHTML = ''; qrcode = new QRCode(container, { text: data, width: 256, height: 256, colorDark: "#000", colorLight: "#fff", correctLevel: QRCode.CorrectLevel.H }); setTimeout(() => { const canvas = container.querySelector('canvas'); if(canvas){ link.href = canvas.toDataURL('image/png'); link.download = 'qrcode.png'; link.classList.remove('hidden'); } }, 100); }); }
+        function initCameraTool() { const startBtn = document.getElementById('start-camera-btn'), captureBtn = document.getElementById('capture-btn'), switchBtn = document.getElementById('switch-camera-btn'), video = document.getElementById('camera-feed'), canvas = document.getElementById('capture-canvas'), resultContainer = document.getElementById('capture-result-container'); if(!startBtn) return; let stream, mode = 'user'; async function start() { if (stream) { stream.getTracks().forEach(t => t.stop()); } try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode, width: { ideal: 1920 }, height: { ideal: 1080 } } }); video.srcObject = stream; captureBtn.disabled = false; switchBtn.disabled = false; video.style.transform = mode === 'user' ? 'scaleX(-1)' : 'scaleX(1)'; } catch (err) { showToast(`Kamera ralat: ${err.name}`, 'error'); } } startBtn.addEventListener('click', start); switchBtn.addEventListener('click', () => { mode = (mode === 'user') ? 'environment' : 'user'; start(); }); captureBtn.addEventListener('click', () => { if (!stream) return; const ctx = canvas.getContext('2d'); canvas.width = video.videoWidth; canvas.height = video.videoHeight; if (mode === 'user') { ctx.translate(video.videoWidth, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight); stream.getTracks().forEach(t => t.stop()); captureBtn.disabled = true; switchBtn.disabled = true; const dataUrl = canvas.toDataURL('image/png'); resultContainer.innerHTML = `<img src="${dataUrl}" alt="Hasil Tangkapan" class="max-h-full max-w-full rounded-md object-contain mb-4"/><a href="${dataUrl}" download="capture.png" class="btn btn-primary"><i class="fas fa-download mr-2"></i> Muat Turun</a>`; }); }
+        function initImgUpload() { const uploadBtn = document.getElementById('upload-img-btn'); if(!uploadBtn) return; uploadBtn.addEventListener('click', async () => { const file = document.getElementById('image-file').files[0], resultDiv = document.getElementById('img-upload-result'); resultDiv.classList.remove('hidden'); if (!API_KEYS.IMGBB) { resultDiv.innerHTML = `<span class="text-red-400">API Key ImgBB diperlukan dalam kod.</span>`; return; } if (!file) { resultDiv.innerHTML = `<span class="text-red-400">Sila pilih gambar.</span>`; return; } resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Mengunggah...`; const formData = new FormData(); formData.append('image', file); try { const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEYS.IMGBB}`, { method: 'POST', body: formData }); const data = await res.json(); if (data.success) { resultDiv.innerHTML = `<p class="mb-2">Berhasil!</p><div class="flex gap-2"><input type="text" value="${data.data.url}" id="img-url-result" readonly class="w-full p-2 input-glow font-mono text-green-400"><button id="copy-url-btn" class="btn btn-primary"><i class="fas fa-copy"></i></button></div>`; document.getElementById('copy-url-btn').addEventListener('click', () => { navigator.clipboard.writeText(data.data.url); showToast('URL disalin!'); }); } else { throw new Error(data.error.message); } } catch (error) { resultDiv.innerHTML = `<span class="text-red-400">Gagal: ${error.message}</span>`; } }); }
+        function initKonfigurasi() { const titleInput = document.getElementById('setting-app-title'), subtitleInput = document.getElementById('setting-app-subtitle'), creditInput = document.getElementById('setting-app-credit'), saveBtn = document.getElementById('save-settings-btn'), appTitleEl = document.getElementById('app-title'), appSubtitleEl = document.getElementById('app-subtitle'), appCreditEl = document.getElementById('app-credit'); if(!saveBtn) return; const defaults = { title: 'PROJECT OBSIDIAN', subtitle: 'Stable Edition v13', credit: '©®codescFrostWolf' }; function loadSettings() { const title = localStorage.getItem('appTitle') || defaults.title, subtitle = localStorage.getItem('appSubtitle') || defaults.subtitle, credit = localStorage.getItem('appCredit') || defaults.credit; appTitleEl.textContent = title; appSubtitleEl.textContent = subtitle; appCreditEl.textContent = credit; titleInput.value = title; subtitleInput.value = subtitle; creditInput.value = credit; } function saveSettings() { localStorage.setItem('appTitle', titleInput.value); localStorage.setItem('appSubtitle', subtitleInput.value); localStorage.setItem('appCredit', creditInput.value); loadSettings(); showToast('Konfigurasi disimpan!'); } saveBtn.addEventListener('click', saveSettings); loadSettings(); }
+        function initStore() { const productList = document.getElementById('product-list'); if(!productList) return; const products = [{ id: 1, name: "Quantum Script", description: "Skrip otomasi canggih.", image: "https://placehold.co/600x400/111118/3b82f6?text=Quantum" }, { id: 2, name: "Ghost VPN License", description: "Lisensi 1 tahun untuk koneksi aman.", image: "https://placehold.co/600x400/111118/3b82f6?text=GhostVPN" }, { id: 3, name: "Data Packet 'Helios'", description: "Kumpulan data eksklusif.", image: "https://placehold.co/600x400/111118/3b82f6?text=Helios" }, { id: 4, name: "Cyberdeck OS", description: "Sistem operasi kustom.", image: "https://placehold.co/600x400/111118/3b82f6?text=Cyberdeck" }, { id: 5, name: "Neural Driver", description: "Driver untuk antarmuka BCI.", image: "https://placehold.co/600x400/111118/3b82f6?text=Neural" }]; products.forEach(p => { const card = document.createElement('div'); card.className = 'panel flex flex-col'; card.innerHTML = `<img src="${p.image}" alt="${p.name}" class="rounded-md mb-4 aspect-video object-cover"><h3 class="text-xl font-bold">${p.name}</h3><p class="text-gray-400 text-sm mt-2 flex-grow">${p.description}</p><button data-product-name="${p.name}" class="btn btn-primary mt-4 w-full order-btn">Pesan via WhatsApp</button>`; productList.appendChild(card); }); document.querySelectorAll('.order-btn').forEach(b => b.addEventListener('click', () => { const name = b.dataset.productName; const phone = '6285351952977'; const message = encodeURIComponent(`Halo, saya ingin memesan produk: ${name}`); window.open(`https://wa.me/${phone}?text=${message}`, '_blank'); })); }
+        function initSpamNgl() { let isRunning = false, stopRequested = false; const startBtn = document.getElementById('startBtn'), stopBtn = document.getElementById('stopBtn'), resultsDiv = document.getElementById('results-ngl'); if(!startBtn) return; function addLog(message, type = 'info') { const colors = { info: 'text-blue-400', success: 'text-green-400', error: 'text-red-400' }; resultsDiv.innerHTML += `<div class="font-mono text-sm ${colors[type]}">> ${message}</div>`; resultsDiv.scrollTop = resultsDiv.scrollHeight; } startBtn.addEventListener('click', async () => { const link = document.getElementById('nglLink').value.trim(), msg = document.getElementById('message').value.trim(), delay = parseInt(document.getElementById('delay').value); if (!link || !msg || isNaN(delay)) { addLog('Error: Sila isi semua medan.', 'error'); return; } let username; try { username = new URL(link).pathname.split('/')[1]; if (!username) throw new Error(); } catch (e) { addLog('Error: URL NGL tidak sah.', 'error'); return; } isRunning = true; stopRequested = false; startBtn.disabled = true; stopBtn.disabled = false; resultsDiv.innerHTML = ''; addLog(`Memulakan jujukan untuk: ${username}`); let count = 0; while (isRunning && !stopRequested) { count++; try { const devId = 'anon-' + Math.random().toString(36).substr(2, 9); const res = await fetch('https://ngl.link/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `username=${encodeURIComponent(username)}&question=${encodeURIComponent(msg)}&deviceId=${devId}` }); if (!res.ok) throw new Error(`HTTP ${res.status}`); addLog(`[${count}] Mesej dihantar.`, 'success'); } catch (error) { addLog(`[${count}] Gagal hantar: ${error.message}`, 'error'); } if (!stopRequested) await new Promise(resolve => setTimeout(resolve, delay)); } addLog('Jujukan ditamatkan.'); isRunning = false; startBtn.disabled = false; stopBtn.disabled = true; }); stopBtn.addEventListener('click', () => { if (isRunning) { stopRequested = true; stopBtn.disabled = true; addLog('Isyarat penamatan diterima...'); } }); }
+        
+        // --- FINAL BOOTSTRAP ---
+        const { showView } = initCore();
+        
+        initDashboard(); initAiChat(); initAiImageGenerator(); initTextAnalyzer(); initSourceCodeAnalyzer(); initKalkulator(); initSecureNotes(); initPasswordGenerator(); initHashGenerator(); initCryptoTool(); initNetworkStatus(); initIpTrack(); initIpCheck(); initTelegramBot(); initQrGenerator(); initCameraTool(); initImgUpload(); initKonfigurasi(); initStore(); initSpamNgl();
+
+        // Show the default view
+        showView('dashboard-view');
+    });
+    </script>
+</body>
+</html>
+
